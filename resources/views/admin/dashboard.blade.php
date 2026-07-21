@@ -19,14 +19,20 @@
 
             <div class="grid grid-cols-1 sm:grid-cols-2 gap-6">
                 <div class="bg-white overflow-hidden shadow-sm sm:rounded-lg p-6">
-                    <h4 class="font-semibold text-gray-800 mb-2">Kelola Produk</h4>
-                    <p class="text-sm text-gray-500">Tambah, ubah, dan hapus produk toko.</p>
-                    {{-- Route::get('/admin/products', ...) akan ditambahkan nanti --}}
+                    <h4 class="font-semibold text-gray-800 mb-1">Kategori Produk</h4>
+                    <p class="text-sm text-gray-500 mb-3">Kelola kategori untuk produk toko.</p>
+                    <a href="{{ route('admin.categories.index') }}"
+                       class="text-sm text-indigo-600 hover:text-indigo-800 font-medium">Kelola Kategori &rarr;</a>
                 </div>
                 <div class="bg-white overflow-hidden shadow-sm sm:rounded-lg p-6">
-                    <h4 class="font-semibold text-gray-800 mb-2">Kelola Order</h4>
-                    <p class="text-sm text-gray-500">Lihat dan proses pesanan pelanggan.</p>
-                    {{-- Route::get('/admin/orders', ...) akan ditambahkan nanti --}}
+                    <h4 class="font-semibold text-gray-800 mb-1">Kelola Produk</h4>
+                    <p class="text-sm text-gray-500 mb-3">Tambah, ubah, dan hapus produk toko.</p>
+                    <span class="text-sm text-gray-300">Segera hadir</span>
+                </div>
+                <div class="bg-white overflow-hidden shadow-sm sm:rounded-lg p-6">
+                    <h4 class="font-semibold text-gray-800 mb-1">Kelola Order</h4>
+                    <p class="text-sm text-gray-500 mb-3">Lihat dan proses pesanan pelanggan.</p>
+                    <span class="text-sm text-gray-300">Segera hadir</span>
                 </div>
             </div>
 
