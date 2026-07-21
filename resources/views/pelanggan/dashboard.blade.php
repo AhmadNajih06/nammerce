@@ -19,8 +19,9 @@
 
             <div class="bg-white overflow-hidden shadow-sm sm:rounded-lg p-6">
                 <h4 class="font-semibold text-gray-800 mb-2">Mulai Belanja</h4>
-                <p class="text-sm text-gray-500">Jelajahi produk dan buat pesanan baru.</p>
-                {{-- Route::get('/products', ...) akan ditambahkan nanti --}}
+                <p class="text-sm text-gray-500 mb-3">Jelajahi produk dan buat pesanan baru.</p>
+                <a href="{{ route('pelanggan.products.index') }}"
+                   class="text-sm text-indigo-600 hover:text-indigo-800 font-medium">Lihat Semua Produk &rarr;</a>
             </div>
 
         </div>

@@ -15,6 +15,12 @@
                     <x-nav-link :href="route('dashboard')" :active="request()->routeIs('dashboard')">
                         {{ __('Dashboard') }}
                     </x-nav-link>
+
+                    @if (Auth::user()->isPelanggan())
+                        <x-nav-link :href="route('pelanggan.products.index')" :active="request()->routeIs('pelanggan.products.*')">
+                            {{ __('Produk') }}
+                        </x-nav-link>
+                    @endif
                 </div>
             </div>
 
@@ -70,6 +76,12 @@
             <x-responsive-nav-link :href="route('dashboard')" :active="request()->routeIs('dashboard')">
                 {{ __('Dashboard') }}
             </x-responsive-nav-link>
+
+            @if (Auth::user()->isPelanggan())
+                <x-responsive-nav-link :href="route('pelanggan.products.index')" :active="request()->routeIs('pelanggan.products.*')">
+                    {{ __('Produk') }}
+                </x-responsive-nav-link>
+            @endif
         </div>
 
         <!-- Responsive Settings Options -->
