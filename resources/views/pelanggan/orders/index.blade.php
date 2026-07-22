@@ -1,48 +1,22 @@
 <x-app-layout>
     <x-slot name="header">
-        <h2 class="font-semibold text-xl text-gray-800 leading-tight">
-            {{ __('Dashboard') }}
-        </h2>
+        <h2 class="font-semibold text-xl text-gray-800 leading-tight">Riwayat Pesanan</h2>
     </x-slot>
 
     <div class="py-12">
-        <div class="max-w-5xl mx-auto sm:px-6 lg:px-8 space-y-6">
+        <div class="max-w-5xl mx-auto sm:px-6 lg:px-8 space-y-4">
 
-            {{-- Sambutan --}}
-            <div class="bg-white overflow-hidden shadow-sm sm:rounded-lg p-6">
-                <h3 class="text-lg font-semibold text-gray-900 mb-1">
-                    Selamat datang, {{ auth()->user()->name }}!
-                </h3>
-                <p class="text-sm text-gray-500">Anda login sebagai <span class="font-medium text-green-600">Pelanggan</span>.</p>
-            </div>
-
-            {{-- Menu cepat --}}
-            <div class="grid grid-cols-1 sm:grid-cols-2 gap-5">
-                <a href="{{ route('pelanggan.products.index') }}"
-                   class="bg-white shadow-sm sm:rounded-lg p-6 hover:shadow-md transition group">
-                    <h4 class="font-semibold text-gray-800 mb-1 group-hover:text-indigo-600">Mulai Belanja</h4>
-                    <p class="text-sm text-gray-500">Jelajahi semua produk yang tersedia.</p>
-                </a>
-                <a href="{{ route('pelanggan.orders.index') }}"
-                   class="bg-white shadow-sm sm:rounded-lg p-6 hover:shadow-md transition group">
-                    <h4 class="font-semibold text-gray-800 mb-1 group-hover:text-indigo-600">Riwayat Pesanan</h4>
-                    <p class="text-sm text-gray-500">Lihat semua pesanan dan status pengirimannya.</p>
-                </a>
-            </div>
-
-            {{-- Pesanan terbaru --}}
-            @php
-                $recentOrders = auth()->user()->orders()->latest()->limit(5)->get();
-            @endphp
-
-            @if ($recentOrders->isNotEmpty())
+            @if ($orders->isEmpty())
+                <div class="bg-white shadow-sm sm:rounded-lg p-12 text-center">
+                    <p class="text-gray-400 mb-3">Anda belum pernah melakukan pemesanan.</p>
+                    <a href="{{ route('pelanggan.products.index') }}"
+                       class="inline-block px-5 py-2 bg-indigo-600 text-white text-sm font-medium rounded-md hover:bg-indigo-700 transition">
+                        Mulai Belanja
+                    </a>
+                </div>
+            @else
                 <div class="bg-white shadow-sm sm:rounded-lg overflow-hidden">
-                    <div class="px-6 py-4 border-b border-gray-100 flex justify-between items-center">
-                        <h3 class="font-semibold text-gray-800">Pesanan Terbaru</h3>
-                        <a href="{{ route('pelanggan.orders.index') }}"
-                           class="text-xs text-indigo-600 hover:text-indigo-800">Lihat semua &rarr;</a>
-                    </div>
-                    <table class="min-w-full divide-y divide-gray-100 text-sm">
+                    <table class="min-w-full divide-y divide-gray-200 text-sm">
                         <thead class="bg-gray-50">
                             <tr>
                                 <th class="px-5 py-3 text-left font-medium text-gray-500 uppercase tracking-wider"># Order</th>
@@ -52,12 +26,14 @@
                                 <th class="px-5 py-3"></th>
                             </tr>
                         </thead>
-                        <tbody class="divide-y divide-gray-100">
-                            @foreach ($recentOrders as $order)
+                        <tbody class="bg-white divide-y divide-gray-100">
+                            @foreach ($orders as $order)
                                 <tr class="hover:bg-gray-50">
-                                    <td class="px-5 py-3 font-medium text-indigo-600">#{{ $order->id }}</td>
+                                    <td class="px-5 py-3 font-medium text-indigo-600">
+                                        #{{ $order->id }}
+                                    </td>
                                     <td class="px-5 py-3 text-gray-600">
-                                        {{ $order->order_date->format('d M Y') }}
+                                        {{ $order->order_date->format('d M Y, H:i') }}
                                     </td>
                                     <td class="px-5 py-3 font-semibold text-gray-800">
                                         {{ $order->formattedTotal() }}
@@ -78,7 +54,7 @@
                                     </td>
                                     <td class="px-5 py-3 text-right">
                                         <a href="{{ route('pelanggan.orders.show', $order) }}"
-                                           class="text-xs text-indigo-600 hover:text-indigo-800 font-medium">
+                                           class="text-indigo-600 hover:text-indigo-800 text-xs font-medium">
                                             Detail &rarr;
                                         </a>
                                     </td>
@@ -86,6 +62,12 @@
                             @endforeach
                         </tbody>
                     </table>
+
+                    @if ($orders->hasPages())
+                        <div class="px-5 py-4 border-t border-gray-100">
+                            {{ $orders->links() }}
+                        </div>
+                    @endif
                 </div>
             @endif
 

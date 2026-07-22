@@ -47,26 +47,46 @@
             @else
                 <div class="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-4 gap-5">
                     @foreach ($products as $product)
-                        <a href="{{ route('pelanggan.products.show', $product) }}"
-                           class="bg-white shadow-sm sm:rounded-lg overflow-hidden hover:shadow-md transition group">
-                            {{-- Foto --}}
-                            <div class="aspect-square overflow-hidden bg-gray-100">
-                                <img src="{{ $product->imageUrl() }}"
-                                     alt="{{ $product->name }}"
-                                     class="w-full h-full object-cover group-hover:scale-105 transition duration-300">
-                            </div>
+                        <div class="bg-white shadow-sm sm:rounded-lg overflow-hidden hover:shadow-md transition flex flex-col">
+                            {{-- Foto — klik ke detail --}}
+                            <a href="{{ route('pelanggan.products.show', $product) }}" class="block group">
+                                <div class="aspect-square overflow-hidden bg-gray-100">
+                                    <img src="{{ $product->imageUrl() }}"
+                                         alt="{{ $product->name }}"
+                                         class="w-full h-full object-cover group-hover:scale-105 transition duration-300">
+                                </div>
+                            </a>
                             {{-- Info --}}
-                            <div class="p-3">
+                            <div class="p-3 flex flex-col flex-1">
                                 <p class="text-xs text-indigo-500 font-medium mb-0.5">{{ $product->category->name }}</p>
-                                <h3 class="text-sm font-semibold text-gray-800 leading-snug line-clamp-2">
+                                <a href="{{ route('pelanggan.products.show', $product) }}"
+                                   class="text-sm font-semibold text-gray-800 leading-snug line-clamp-2 hover:text-indigo-600">
                                     {{ $product->name }}
-                                </h3>
+                                </a>
                                 <p class="mt-1 text-sm font-bold text-gray-900">{{ $product->formattedPrice() }}</p>
                                 <p class="text-xs mt-1 {{ $product->stock > 0 ? 'text-green-600' : 'text-red-500' }}">
                                     {{ $product->stock > 0 ? 'Stok: ' . $product->stock : 'Habis' }}
                                 </p>
+                                {{-- Tombol keranjang --}}
+                                <div class="mt-3">
+                                    @if ($product->stock > 0)
+                                        <form action="{{ route('pelanggan.cart.add', $product) }}" method="POST">
+                                            @csrf
+                                            <input type="hidden" name="quantity" value="1">
+                                            <button type="submit"
+                                                    class="w-full px-3 py-1.5 bg-indigo-600 text-white text-xs font-medium rounded-md hover:bg-indigo-700 transition">
+                                                + Keranjang
+                                            </button>
+                                        </form>
+                                    @else
+                                        <button disabled
+                                                class="w-full px-3 py-1.5 bg-gray-100 text-gray-400 text-xs font-medium rounded-md cursor-not-allowed">
+                                            Stok Habis
+                                        </button>
+                                    @endif
+                                </div>
                             </div>
-                        </a>
+                        </div>
                     @endforeach
                 </div>
 

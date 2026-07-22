@@ -58,6 +58,11 @@ class ProductController extends Controller
 
     public function update(Request $request, Product $product): RedirectResponse
     {
+        // Jika POST payload melebihi post_max_size, PHP mengosongkan $_FILES & $_POST
+        if ($request->server('CONTENT_LENGTH') > 0 && empty($_POST) && empty($_FILES)) {
+            return back()->withErrors(['image' => 'Ukuran file terlalu besar. Pastikan ukuran file tidak melebihi batas server.'])->withInput();
+        }
+
         $data = $request->validate([
             'category_id'  => ['required', 'exists:categories,id'],
             'name'         => ['required', 'string', 'max:255', 'unique:products,name,' . $product->id],
@@ -75,6 +80,9 @@ class ProductController extends Controller
                 \Storage::disk('public')->delete($product->image);
             }
             $data['image'] = $request->file('image')->store('products', 'public');
+        } else {
+            // Jangan overwrite image dengan null jika tidak ada file baru
+            unset($data['image']);
         }
 
         $product->update($data);

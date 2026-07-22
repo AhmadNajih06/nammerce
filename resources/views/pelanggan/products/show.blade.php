@@ -44,7 +44,38 @@
                             </div>
                         @endif
 
-                        <div class="mt-auto pt-4">
+                        <div class="mt-auto pt-4 space-y-3">
+
+                            @if (session('success'))
+                                <div class="bg-green-100 border border-green-300 text-green-800 px-3 py-2 rounded text-sm">
+                                    {{ session('success') }}
+                                </div>
+                            @endif
+                            @if (session('error'))
+                                <div class="bg-red-100 border border-red-300 text-red-800 px-3 py-2 rounded text-sm">
+                                    {{ session('error') }}
+                                </div>
+                            @endif
+
+                            @if ($product->stock > 0)
+                                <form action="{{ route('pelanggan.cart.add', $product) }}" method="POST"
+                                      class="flex items-center gap-2">
+                                    @csrf
+                                    <input type="number" name="quantity" value="1"
+                                           min="1" max="{{ $product->stock }}"
+                                           class="w-20 border-gray-300 rounded-md text-sm text-center">
+                                    <button type="submit"
+                                            class="flex-1 px-5 py-2 bg-indigo-600 text-white text-sm font-medium rounded-md hover:bg-indigo-700 transition">
+                                        + Keranjang
+                                    </button>
+                                </form>
+                            @else
+                                <button disabled
+                                        class="w-full px-5 py-2 bg-gray-200 text-gray-400 text-sm font-medium rounded-md cursor-not-allowed">
+                                    Stok Habis
+                                </button>
+                            @endif
+
                             <a href="{{ route('pelanggan.products.index') }}"
                                class="inline-block px-5 py-2 border border-gray-300 text-sm text-gray-700 rounded-md hover:bg-gray-50 transition">
                                 &larr; Kembali ke Produk

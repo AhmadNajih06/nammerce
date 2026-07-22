@@ -16,10 +16,45 @@
                         {{ __('Dashboard') }}
                     </x-nav-link>
 
+                    @if (Auth::user()->isAdmin())
+                        <x-nav-link :href="route('admin.orders.index')" :active="request()->routeIs('admin.orders.*')">
+                            {{ __('Order') }}
+                        </x-nav-link>
+                        <x-nav-link :href="route('admin.products.index')" :active="request()->routeIs('admin.products.*')">
+                            {{ __('Produk') }}
+                        </x-nav-link>
+                        <x-nav-link :href="route('admin.categories.index')" :active="request()->routeIs('admin.categories.*')">
+                            {{ __('Kategori') }}
+                        </x-nav-link>
+                    @endif
+
                     @if (Auth::user()->isPelanggan())
                         <x-nav-link :href="route('pelanggan.products.index')" :active="request()->routeIs('pelanggan.products.*')">
                             {{ __('Produk') }}
                         </x-nav-link>
+
+                        <x-nav-link :href="route('pelanggan.orders.index')" :active="request()->routeIs('pelanggan.orders.*')">
+                            {{ __('Pesanan') }}
+                        </x-nav-link>
+
+                        {{-- Keranjang dengan badge --}}
+                        <a href="{{ route('pelanggan.cart.index') }}"
+                           class="inline-flex items-center gap-1.5 px-1 pt-1 border-b-2 text-sm font-medium leading-5 transition
+                                  {{ request()->routeIs('pelanggan.cart.*') || request()->routeIs('pelanggan.checkout.*')
+                                     ? 'border-indigo-400 text-gray-900'
+                                     : 'border-transparent text-gray-500 hover:text-gray-700 hover:border-gray-300' }}">
+                            <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                                      d="M3 3h2l.4 2M7 13h10l4-8H5.4M7 13L5.4 5M7 13l-2.293 2.293c-.63.63-.184 1.707.707 1.707H17m0 0a2 2 0 100 4 2 2 0 000-4zm-8 2a2 2 0 11-4 0 2 2 0 014 0z"/>
+                            </svg>
+                            Keranjang
+                            @php $cartCount = collect(session('cart', []))->sum('quantity'); @endphp
+                            @if ($cartCount > 0)
+                                <span class="inline-flex items-center justify-center w-4 h-4 text-xs font-bold text-white bg-indigo-600 rounded-full">
+                                    {{ $cartCount > 9 ? '9+' : $cartCount }}
+                                </span>
+                            @endif
+                        </a>
                     @endif
                 </div>
             </div>
@@ -77,9 +112,37 @@
                 {{ __('Dashboard') }}
             </x-responsive-nav-link>
 
+            @if (Auth::user()->isAdmin())
+                <x-responsive-nav-link :href="route('admin.orders.index')" :active="request()->routeIs('admin.orders.*')">
+                    {{ __('Order') }}
+                </x-responsive-nav-link>
+                <x-responsive-nav-link :href="route('admin.products.index')" :active="request()->routeIs('admin.products.*')">
+                    {{ __('Produk') }}
+                </x-responsive-nav-link>
+                <x-responsive-nav-link :href="route('admin.categories.index')" :active="request()->routeIs('admin.categories.*')">
+                    {{ __('Kategori') }}
+                </x-responsive-nav-link>
+            @endif
+
             @if (Auth::user()->isPelanggan())
                 <x-responsive-nav-link :href="route('pelanggan.products.index')" :active="request()->routeIs('pelanggan.products.*')">
                     {{ __('Produk') }}
+                </x-responsive-nav-link>
+
+                <x-responsive-nav-link :href="route('pelanggan.orders.index')" :active="request()->routeIs('pelanggan.orders.*')">
+                    {{ __('Pesanan') }}
+                </x-responsive-nav-link>
+
+                @php $cartCount = collect(session('cart', []))->sum('quantity'); @endphp
+                <x-responsive-nav-link :href="route('pelanggan.cart.index')" :active="request()->routeIs('pelanggan.cart.*')">
+                    <span class="flex items-center gap-2">
+                        {{ __('Keranjang') }}
+                        @if ($cartCount > 0)
+                            <span class="inline-flex items-center justify-center w-4 h-4 text-xs font-bold text-white bg-indigo-600 rounded-full">
+                                {{ $cartCount > 9 ? '9+' : $cartCount }}
+                            </span>
+                        @endif
+                    </span>
                 </x-responsive-nav-link>
             @endif
         </div>
