@@ -102,4 +102,16 @@ class ProductController extends Controller
         return redirect()->route('admin.products.index')
             ->with('success', 'Produk berhasil dihapus.');
     }
+
+    /**
+     * Toggle is_active ON/OFF.
+     */
+    public function toggle(Product $product): RedirectResponse
+    {
+        $product->update(['is_active' => ! $product->is_active]);
+
+        $label = $product->is_active ? 'diaktifkan' : 'dinonaktifkan';
+
+        return back()->with('success', "Produk \"{$product->name}\" berhasil {$label}.");
+    }
 }

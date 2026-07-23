@@ -31,63 +31,6 @@
             </div>
 
             {{-- Pesanan terbaru --}}
-            @php
-                $recentOrders = auth()->user()->orders()->latest()->limit(5)->get();
-            @endphp
-
-            @if ($recentOrders->isNotEmpty())
-                <div class="bg-white shadow-sm sm:rounded-lg overflow-hidden">
-                    <div class="px-6 py-4 border-b border-gray-100 flex justify-between items-center">
-                        <h3 class="font-semibold text-gray-800">Pesanan Terbaru</h3>
-                        <a href="{{ route('pelanggan.orders.index') }}"
-                           class="text-xs text-indigo-600 hover:text-indigo-800">Lihat semua &rarr;</a>
-                    </div>
-                    <table class="min-w-full divide-y divide-gray-100 text-sm">
-                        <thead class="bg-gray-50">
-                            <tr>
-                                <th class="px-5 py-3 text-left font-medium text-gray-500 uppercase tracking-wider"># Order</th>
-                                <th class="px-5 py-3 text-left font-medium text-gray-500 uppercase tracking-wider">Tanggal</th>
-                                <th class="px-5 py-3 text-left font-medium text-gray-500 uppercase tracking-wider">Total</th>
-                                <th class="px-5 py-3 text-left font-medium text-gray-500 uppercase tracking-wider">Status</th>
-                                <th class="px-5 py-3"></th>
-                            </tr>
-                        </thead>
-                        <tbody class="divide-y divide-gray-100">
-                            @foreach ($recentOrders as $order)
-                                <tr class="hover:bg-gray-50">
-                                    <td class="px-5 py-3 font-medium text-indigo-600">#{{ $order->id }}</td>
-                                    <td class="px-5 py-3 text-gray-600">
-                                        {{ $order->order_date->format('d M Y') }}
-                                    </td>
-                                    <td class="px-5 py-3 font-semibold text-gray-800">
-                                        {{ $order->formattedTotal() }}
-                                    </td>
-                                    <td class="px-5 py-3">
-                                        @php
-                                            $badge = match($order->status) {
-                                                'pending'    => 'bg-yellow-100 text-yellow-700',
-                                                'processing' => 'bg-blue-100 text-blue-700',
-                                                'completed'  => 'bg-green-100 text-green-700',
-                                                'cancelled'  => 'bg-red-100 text-red-700',
-                                                default      => 'bg-gray-100 text-gray-700',
-                                            };
-                                        @endphp
-                                        <span class="px-2 py-0.5 rounded-full text-xs font-medium {{ $badge }}">
-                                            {{ $order->statusLabel() }}
-                                        </span>
-                                    </td>
-                                    <td class="px-5 py-3 text-right">
-                                        <a href="{{ route('pelanggan.orders.show', $order) }}"
-                                           class="text-xs text-indigo-600 hover:text-indigo-800 font-medium">
-                                            Detail &rarr;
-                                        </a>
-                                    </td>
-                                </tr>
-                            @endforeach
-                        </tbody>
-                    </table>
-                </div>
-            @endif
 
         </div>
     </div>

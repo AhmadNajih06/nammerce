@@ -26,7 +26,11 @@
 
                         <div class="flex items-center gap-2">
                             <span class="text-sm text-gray-500">Stok:</span>
-                            @if ($product->stock > 0)
+                            @if (! $product->is_active)
+                                <span class="px-2 py-0.5 rounded-full text-xs font-medium bg-gray-100 text-gray-500">
+                                    Tidak Tersedia
+                                </span>
+                            @elseif ($product->stock > 0)
                                 <span class="px-2 py-0.5 rounded-full text-xs font-medium bg-green-100 text-green-700">
                                     {{ $product->stock }} tersedia
                                 </span>
@@ -57,7 +61,12 @@
                                 </div>
                             @endif
 
-                            @if ($product->stock > 0)
+                            @if (! $product->is_active)
+                                <button disabled
+                                        class="w-full px-5 py-2 bg-gray-200 text-gray-400 text-sm font-medium rounded-md cursor-not-allowed">
+                                    Tidak Tersedia
+                                </button>
+                            @elseif ($product->stock > 0)
                                 <form action="{{ route('pelanggan.cart.add', $product) }}" method="POST"
                                       class="flex items-center gap-2">
                                     @csrf

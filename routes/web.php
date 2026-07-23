@@ -12,7 +12,13 @@ use App\Http\Controllers\ProfileController;
 use Illuminate\Support\Facades\Route;
 
 Route::get('/', function () {
-    return view('welcome');
+    $products = \App\Models\Product::with('category')
+        ->where('stock', '>', 0)
+        ->latest()
+        ->limit(8)
+        ->get();
+
+    return view('welcome', compact('products'));
 });
 
 // Redirect /dashboard ke route yang sesuai dengan role
@@ -35,6 +41,9 @@ Route::middleware(['auth', 'verified', 'role:admin'])
 
         Route::resource('products', AdminProductController::class)
             ->except(['show']);
+
+        Route::patch('products/{product}/toggle', [AdminProductController::class, 'toggle'])
+            ->name('products.toggle');
 
         // Orders
         Route::get('/orders', [OrderController::class, 'index'])->name('orders.index');
@@ -75,6 +84,8 @@ Route::middleware(['auth', 'verified', 'role:pelanggan'])
 Route::middleware('auth')->group(function () {
     Route::get('/profile', [ProfileController::class, 'edit'])->name('profile.edit');
     Route::patch('/profile', [ProfileController::class, 'update'])->name('profile.update');
+    Route::post('/profile/avatar', [ProfileController::class, 'updateAvatar'])->name('profile.avatar.update');
+    Route::delete('/profile/avatar', [ProfileController::class, 'destroyAvatar'])->name('profile.avatar.destroy');
     Route::delete('/profile', [ProfileController::class, 'destroy'])->name('profile.destroy');
 });
 

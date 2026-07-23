@@ -35,6 +35,10 @@ class CartController extends Controller
             return back()->with('error', 'Produk ini sudah habis.');
         }
 
+        if (! $product->is_active) {
+            return back()->with('error', 'Produk ini sedang tidak tersedia untuk dipesan.');
+        }
+
         $qty  = (int) $request->quantity;
         $cart = session()->get('cart', []);
         $key  = (string) $product->id;

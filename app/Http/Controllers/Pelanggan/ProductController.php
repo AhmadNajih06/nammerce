@@ -10,19 +10,14 @@ use Illuminate\View\View;
 
 class ProductController extends Controller
 {
-    /**
-     * Daftar semua produk dengan filter kategori & pencarian.
-     */
     public function index(Request $request): View
     {
         $query = Product::with('category')->oldest();
 
-        // Filter kategori
         if ($request->filled('category')) {
             $query->where('category_id', $request->category);
         }
 
-        // Pencarian nama
         if ($request->filled('search')) {
             $query->where('name', 'like', '%' . $request->search . '%');
         }
@@ -33,9 +28,6 @@ class ProductController extends Controller
         return view('pelanggan.products.index', compact('products', 'categories'));
     }
 
-    /**
-     * Detail satu produk.
-     */
     public function show(Product $product): View
     {
         return view('pelanggan.products.show', compact('product'));

@@ -19,14 +19,16 @@ class Product extends Model
         'description',
         'price',
         'stock',
+        'is_active',
         'image',
     ];
 
     protected function casts(): array
     {
         return [
-            'price' => 'integer',
-            'stock' => 'integer',
+            'price'     => 'integer',
+            'stock'     => 'integer',
+            'is_active' => 'boolean',
         ];
     }
 

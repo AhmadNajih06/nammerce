@@ -15,7 +15,8 @@ class OrderController extends Controller
     public function index(): View
     {
         $orders = Order::where('user_id', auth()->id())
-            ->latest()
+            ->with('items.product')
+            ->oldest()
             ->paginate(10);
 
         return view('pelanggan.orders.index', compact('orders'));

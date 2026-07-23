@@ -2,82 +2,148 @@
     <x-slot name="header">
         <div class="flex items-center gap-3">
             <a href="{{ route('pelanggan.cart.index') }}" class="text-gray-400 hover:text-gray-600">&larr;</a>
-            <h2 class="font-semibold text-xl text-gray-800 leading-tight">Konfirmasi Pesanan</h2>
+            <h2 class="font-semibold text-xl text-gray-800 leading-tight">Checkout</h2>
         </div>
     </x-slot>
 
     <div class="py-12">
-        <div class="max-w-3xl mx-auto sm:px-6 lg:px-8 space-y-6">
+        <div class="max-w-4xl mx-auto sm:px-6 lg:px-8">
 
-            {{-- Ringkasan produk --}}
-            <div class="bg-white shadow-sm sm:rounded-lg overflow-hidden">
-                <div class="px-6 py-4 border-b border-gray-100">
-                    <h3 class="font-semibold text-gray-800">Ringkasan Pesanan</h3>
-                </div>
-                <table class="min-w-full divide-y divide-gray-100 text-sm">
-                    <thead class="bg-gray-50">
-                        <tr>
-                            <th class="px-6 py-3 text-left font-medium text-gray-500 uppercase tracking-wider">Produk</th>
-                            <th class="px-6 py-3 text-right font-medium text-gray-500 uppercase tracking-wider">Harga</th>
-                            <th class="px-6 py-3 text-right font-medium text-gray-500 uppercase tracking-wider">Jumlah</th>
-                            <th class="px-6 py-3 text-right font-medium text-gray-500 uppercase tracking-wider">Subtotal</th>
-                        </tr>
-                    </thead>
-                    <tbody class="divide-y divide-gray-100">
-                        @foreach ($items as $item)
-                            <tr>
-                                <td class="px-6 py-3">
-                                    <div class="flex items-center gap-3">
-                                        <img src="{{ $item['image'] ? asset('storage/' . $item['image']) : asset('images/no-image.png') }}"
-                                             alt="{{ $item['name'] }}"
-                                             class="w-10 h-10 object-cover rounded border border-gray-200 flex-shrink-0">
-                                        <span class="font-medium text-gray-800">{{ $item['name'] }}</span>
-                                    </div>
-                                </td>
-                                <td class="px-6 py-3 text-right text-gray-600">
-                                    Rp {{ number_format($item['price'], 0, ',', '.') }}
-                                </td>
-                                <td class="px-6 py-3 text-right text-gray-600">
-                                    {{ $item['quantity'] }}
-                                </td>
-                                <td class="px-6 py-3 text-right font-semibold text-gray-900">
-                                    Rp {{ number_format($item['price'] * $item['quantity'], 0, ',', '.') }}
-                                </td>
-                            </tr>
-                        @endforeach
-                    </tbody>
-                    <tfoot class="bg-gray-50 border-t border-gray-200">
-                        <tr>
-                            <td colspan="3" class="px-6 py-4 text-right font-semibold text-gray-700">Total</td>
-                            <td class="px-6 py-4 text-right font-bold text-lg text-gray-900">
-                                Rp {{ number_format($total, 0, ',', '.') }}
-                            </td>
-                        </tr>
-                    </tfoot>
-                </table>
-            </div>
-
-            {{-- Info pembeli --}}
-            <div class="bg-white shadow-sm sm:rounded-lg p-6">
-                <h3 class="font-semibold text-gray-800 mb-3">Data Pemesan</h3>
-                <div class="text-sm text-gray-600 space-y-1">
-                    <div><span class="font-medium text-gray-700">Nama:</span> {{ auth()->user()->name }}</div>
-                    <div><span class="font-medium text-gray-700">Email:</span> {{ auth()->user()->email }}</div>
-                </div>
-            </div>
-
-            {{-- Tombol konfirmasi --}}
             <form action="{{ route('pelanggan.checkout.store') }}" method="POST">
                 @csrf
-                <div class="flex items-center justify-between gap-4">
-                    <a href="{{ route('pelanggan.cart.index') }}"
-                       class="px-5 py-2 border border-gray-300 text-sm text-gray-700 rounded-md hover:bg-gray-50 transition">
-                        &larr; Kembali ke Keranjang
-                    </a>
-                    <button type="submit"
-                            class="px-8 py-2.5 bg-indigo-600 text-white font-semibold rounded-md hover:bg-indigo-700 transition">
-                        Konfirmasi &amp; Pesan
-                    </button>
+                <div class="grid grid-cols-1 lg:grid-cols-5 gap-6">
+
+                    {{-- ── Kiri: Form pengiriman & pembayaran ── --}}
+                    <div class="lg:col-span-3 space-y-6">
+
+                        {{-- Informasi Pengiriman --}}
+                        <div class="bg-white shadow-sm sm:rounded-lg p-6 space-y-4">
+                            <h3 class="font-semibold text-gray-800">Informasi Pengiriman</h3>
+
+                            {{-- Nama penerima --}}
+                            <div>
+                                <label class="block text-sm font-medium text-gray-700 mb-1">
+                                    Nama Penerima <span class="text-red-500">*</span>
+                                </label>
+                                <input type="text" name="shipping_name"
+                                       value="{{ old('shipping_name', auth()->user()->name) }}"
+                                       class="w-full border-gray-300 rounded-md shadow-sm text-sm focus:ring-indigo-500 focus:border-indigo-500 @error('shipping_name') border-red-400 @enderror"
+                                       placeholder="Nama lengkap penerima">
+                                @error('shipping_name')
+                                    <p class="mt-1 text-xs text-red-600">{{ $message }}</p>
+                                @enderror
+                            </div>
+
+                            {{-- Nomor telepon --}}
+                            <div>
+                                <label class="block text-sm font-medium text-gray-700 mb-1">
+                                    Nomor Telepon <span class="text-red-500">*</span>
+                                </label>
+                                <input type="text" name="shipping_phone"
+                                       value="{{ old('shipping_phone') }}"
+                                       class="w-full border-gray-300 rounded-md shadow-sm text-sm focus:ring-indigo-500 focus:border-indigo-500 @error('shipping_phone') border-red-400 @enderror"
+                                       placeholder="08xxxxxxxxxx">
+                                @error('shipping_phone')
+                                    <p class="mt-1 text-xs text-red-600">{{ $message }}</p>
+                                @enderror
+                            </div>
+
+                            {{-- Alamat pengiriman --}}
+                            <div>
+                                <label class="block text-sm font-medium text-gray-700 mb-1">
+                                    Alamat Pengiriman <span class="text-red-500">*</span>
+                                </label>
+                                <textarea name="shipping_address" rows="3"
+                                          class="w-full border-gray-300 rounded-md shadow-sm text-sm focus:ring-indigo-500 focus:border-indigo-500 @error('shipping_address') border-red-400 @enderror"
+                                          placeholder="Jalan, RT/RW, Kelurahan, Kecamatan, Kota, Provinsi">{{ old('shipping_address') }}</textarea>
+                                @error('shipping_address')
+                                    <p class="mt-1 text-xs text-red-600">{{ $message }}</p>
+                                @enderror
+                            </div>
+                        </div>
+
+                        {{-- Metode Pembayaran --}}
+                        <div class="bg-white shadow-sm sm:rounded-lg p-6 space-y-3">
+                            <h3 class="font-semibold text-gray-800">Metode Pembayaran</h3>
+                            @error('payment_method')
+                                <p class="text-xs text-red-600">{{ $message }}</p>
+                            @enderror
+
+                            @foreach ([
+                                'transfer'  => ['label' => 'Transfer Bank', 'desc' => 'BCA / Mandiri / BNI / BRI', 'icon' => '🏦'],
+                                'ewallet'   => ['label' => 'E-Wallet', 'desc' => 'GoPay / OVO / DANA / ShopeePay', 'icon' => '📱'],
+                                'cod'       => ['label' => 'Bayar di Tempat (COD)', 'desc' => 'Bayar saat paket tiba', 'icon' => '🚚'],
+                            ] as $value => $opt)
+                                <label class="flex items-start gap-3 p-4 border rounded-lg cursor-pointer transition
+                                              {{ old('payment_method') === $value ? 'border-indigo-500 bg-indigo-50' : 'border-gray-200 hover:border-indigo-300' }}"
+                                       x-data
+                                       :class="$refs.pm_{{ $value }}.checked ? 'border-indigo-500 bg-indigo-50' : 'border-gray-200 hover:border-indigo-300'">
+                                    <input type="radio" name="payment_method" value="{{ $value }}"
+                                           x-ref="pm_{{ $value }}"
+                                           {{ old('payment_method') === $value ? 'checked' : '' }}
+                                           class="mt-0.5 text-indigo-600 focus:ring-indigo-500">
+                                    <div>
+                                        <p class="text-sm font-medium text-gray-800">{{ $opt['icon'] }} {{ $opt['label'] }}</p>
+                                        <p class="text-xs text-gray-500">{{ $opt['desc'] }}</p>
+                                    </div>
+                                </label>
+                            @endforeach
+                        </div>
+
+                    </div>
+
+                    {{-- ── Kanan: Ringkasan pesanan ── --}}
+                    <div class="lg:col-span-2 space-y-4">
+
+                        <div class="bg-white shadow-sm sm:rounded-lg overflow-hidden sticky top-4">
+                            <div class="px-5 py-4 border-b border-gray-100">
+                                <h3 class="font-semibold text-gray-800">Ringkasan Pesanan</h3>
+                            </div>
+
+                            {{-- Item list --}}
+                            <div class="px-5 py-4 space-y-3 max-h-72 overflow-y-auto">
+                                @foreach ($items as $item)
+                                    <div class="flex items-center gap-3">
+                                        <img src="{{ $item['image'] ? asset('storage/'.$item['image']) : asset('images/no-image.png') }}"
+                                             alt="{{ $item['name'] }}"
+                                             class="w-12 h-12 object-cover rounded-md border border-gray-100 flex-shrink-0">
+                                        <div class="flex-1 min-w-0">
+                                            <p class="text-xs font-medium text-gray-800 truncate">{{ $item['name'] }}</p>
+                                            <p class="text-xs text-gray-400">
+                                                Rp {{ number_format($item['price'], 0, ',', '.') }} × {{ $item['quantity'] }}
+                                            </p>
+                                        </div>
+                                        <p class="text-xs font-semibold text-gray-800 whitespace-nowrap">
+                                            Rp {{ number_format($item['price'] * $item['quantity'], 0, ',', '.') }}
+                                        </p>
+                                    </div>
+                                @endforeach
+                            </div>
+
+                            {{-- Total --}}
+                            <div class="px-5 py-4 border-t border-gray-100 bg-gray-50">
+                                <div class="flex justify-between items-center">
+                                    <span class="text-sm font-semibold text-gray-700">Total</span>
+                                    <span class="text-lg font-bold text-gray-900">
+                                        Rp {{ number_format($total, 0, ',', '.') }}
+                                    </span>
+                                </div>
+                            </div>
+
+                            {{-- Tombol pesan --}}
+                            <div class="px-5 pb-5">
+                                <button type="submit"
+                                        class="w-full py-3 bg-indigo-600 text-white font-semibold rounded-lg hover:bg-indigo-700 transition mt-4">
+                                    Konfirmasi &amp; Pesan
+                                </button>
+                                <a href="{{ route('pelanggan.cart.index') }}"
+                                   class="block text-center mt-2 text-sm text-gray-500 hover:text-gray-700">
+                                    &larr; Kembali ke Keranjang
+                                </a>
+                            </div>
+                        </div>
+
+                    </div>
                 </div>
             </form>
 

@@ -45,8 +45,65 @@
 
             <div class="grid grid-cols-1 lg:grid-cols-2 gap-6">
 
+                {{-- ── Grafik Pendapatan Bulanan ── --}}
+                <div class="bg-white shadow-sm sm:rounded-lg p-6">
+                    <div class="flex items-center justify-between mb-5">
+                        <div>
+                            <h3 class="font-semibold text-gray-800">Grafik Pendapatan</h3>
+                            <p class="text-xs text-gray-400 mt-0.5">12 bulan terakhir (tidak termasuk dibatalkan)</p>
+                        </div>
+                    </div>
+                    <div style="position:relative; height:260px;">
+                        <canvas id="revenueChart"></canvas>
+                    </div>
+                    @if (array_sum($revenueChart['data']) === 0)
+                        <p class="text-center text-xs text-gray-400 mt-3">Belum ada data pendapatan.</p>
+                    @endif
+                </div>
+
+                {{-- ── Grafik Persentase Penjualan Produk ── --}}
+                <div class="bg-white shadow-sm sm:rounded-lg p-6">
+                    <div class="mb-5">
+                        <h3 class="font-semibold text-gray-800">Persentase Penjualan Produk</h3>
+                        <p class="text-xs text-gray-400 mt-0.5">Berdasarkan jumlah unit terjual</p>
+                    </div>
+                    @if (empty($productSalesChart['data']))
+                        <p class="text-center text-sm text-gray-400 py-20">Belum ada data penjualan produk.</p>
+                    @else
+                        <div class="flex flex-col sm:flex-row items-center gap-6">
+                            {{-- Doughnut --}}
+                            <div class="flex-shrink-0" style="position:relative; width:180px; height:180px;">
+                                <canvas id="productDoughnutChart"></canvas>
+                            </div>
+                            {{-- Legenda --}}
+                            <ul class="w-full space-y-2 text-sm min-w-0">
+                                @php
+                                    $chartColors = ['#6366f1','#22c55e','#f59e0b','#ef4444','#3b82f6','#8b5cf6','#14b8a6','#f97316'];
+                                @endphp
+                                @foreach ($productSalesChart['labels'] as $i => $label)
+                                    <li class="flex items-center justify-between gap-2">
+                                        <div class="flex items-center gap-2 min-w-0">
+                                            <span class="flex-shrink-0 w-2.5 h-2.5 rounded-full"
+                                                  style="background:{{ $chartColors[$i % count($chartColors)] }}"></span>
+                                            <span class="truncate text-gray-700 text-xs">{{ $label }}</span>
+                                        </div>
+                                        <span class="flex-shrink-0 text-xs font-semibold text-gray-800">
+                                            {{ $productSalesChart['data'][$i] }}%
+                                            <span class="text-gray-400 font-normal">({{ $productSalesChart['raw'][$i] }})</span>
+                                        </span>
+                                    </li>
+                                @endforeach
+                            </ul>
+                        </div>
+                    @endif
+                </div>
+
+            </div>
+
+            <div class="grid grid-cols-1 lg:grid-cols-2 gap-6">
+
                 {{-- Order terbaru --}}
-                <div class="bg-white shadow-sm sm:rounded-lg overflow-hidden">
+                <!-- <div class="bg-white shadow-sm sm:rounded-lg overflow-hidden">
                     <div class="px-6 py-4 border-b border-gray-100 flex justify-between items-center">
                         <h3 class="font-semibold text-gray-800">Order Terbaru</h3>
                         <a href="{{ route('admin.orders.index') }}" class="text-xs text-indigo-600 hover:text-indigo-800">Lihat semua &rarr;</a>
@@ -57,7 +114,7 @@
                         <table class="min-w-full divide-y divide-gray-100 text-sm">
                             <thead class="bg-gray-50">
                                 <tr>
-                                    <th class="px-4 py-3 text-left font-medium text-gray-500 uppercase tracking-wider">#</th>
+                                    
                                     <th class="px-4 py-3 text-left font-medium text-gray-500 uppercase tracking-wider">Pelanggan</th>
                                     <th class="px-4 py-3 text-left font-medium text-gray-500 uppercase tracking-wider">Total</th>
                                     <th class="px-4 py-3 text-left font-medium text-gray-500 uppercase tracking-wider">Status</th>
@@ -67,12 +124,17 @@
                                 @foreach ($recentOrders as $order)
                                     <tr class="hover:bg-gray-50">
                                         <td class="px-4 py-3">
-                                            <a href="{{ route('admin.orders.show', $order) }}"
-                                               class="font-medium text-indigo-600 hover:text-indigo-800">
-                                                #{{ $order->id }}
-                                            </a>
+                                            <div class="flex items-center gap-3">
+                                        <img src="{{ $order->user->avatarUrl() }}"
+                                             alt="{{ $order->user->name }}"
+                                             class="w-10 h-10 rounded-full object-cover flex-shrink-0 border border-gray-200">
+                                        <div class="min-w-0">
+                                            <p class="font-medium text-gray-900 truncate">{{ $order->user->name }}</p>
+                                            <p class="text-xs text-gray-400 truncate">{{ $order->user->email }}</p>
+                                        </div>
+                                    </div>
                                         </td>
-                                        <td class="px-4 py-3 text-gray-700">{{ $order->user->name }}</td>
+                                       
                                         <td class="px-4 py-3 text-gray-700">{{ $order->formattedTotal() }}</td>
                                         <td class="px-4 py-3">
                                             @php
@@ -93,7 +155,7 @@
                             </tbody>
                         </table>
                     @endif
-                </div>
+                </div> -->
 
                 {{-- Produk terlaris --}}
                 <div class="bg-white shadow-sm sm:rounded-lg overflow-hidden">
@@ -161,4 +223,101 @@
 
         </div>
     </div>
+
+    {{-- Chart.js --}}
+    <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.3/dist/chart.umd.min.js"></script>
+    <script>
+        // ── Data dari PHP ──────────────────────────────────────────────────
+        const revenueLabels = @json($revenueChart['labels']);
+        const revenueData   = @json($revenueChart['data']);
+
+        const productLabels = @json($productSalesChart['labels'] ?? []);
+        const productData   = @json($productSalesChart['data']   ?? []);
+        const productRaw    = @json($productSalesChart['raw']    ?? []);
+
+        const palette = ['#6366f1','#22c55e','#f59e0b','#ef4444','#3b82f6','#8b5cf6','#14b8a6','#f97316'];
+
+        function fmtRupiah(v) {
+            if (v >= 1_000_000) return 'Rp ' + (v / 1_000_000).toFixed(1) + ' jt';
+            if (v >= 1_000)     return 'Rp ' + (v / 1_000).toFixed(0) + ' rb';
+            return 'Rp ' + v;
+        }
+
+        // ══ Grafik Pendapatan Bulanan (Bar) ════════════════════════════════
+        const revenueCtx = document.getElementById('revenueChart');
+        if (revenueCtx) {
+            new Chart(revenueCtx, {
+                type: 'bar',
+                data: {
+                    labels: revenueLabels,
+                    datasets: [{
+                        label: 'Pendapatan',
+                        data: revenueData,
+                        backgroundColor: 'rgba(99,102,241,0.15)',
+                        borderColor: '#6366f1',
+                        borderWidth: 2,
+                        borderRadius: 6,
+                        borderSkipped: false,
+                    }],
+                },
+                options: {
+                    responsive: true,
+                    maintainAspectRatio: false,
+                    plugins: {
+                        legend: { display: false },
+                        tooltip: {
+                            callbacks: {
+                                label: ctx => ' ' + new Intl.NumberFormat('id-ID', {
+                                    style: 'currency', currency: 'IDR', maximumFractionDigits: 0
+                                }).format(ctx.parsed.y),
+                            },
+                        },
+                    },
+                    scales: {
+                        x: {
+                            grid: { display: false },
+                            ticks: { font: { size: 10 }, maxRotation: 45 },
+                        },
+                        y: {
+                            beginAtZero: true,
+                            grid: { color: '#f3f4f6' },
+                            ticks: { font: { size: 10 }, callback: v => fmtRupiah(v) },
+                        },
+                    },
+                },
+            });
+        }
+
+        // ══ Doughnut — Persentase Penjualan Produk ═════════════════════════
+        const doughnutCtx = document.getElementById('productDoughnutChart');
+        if (doughnutCtx && productData.length > 0) {
+            new Chart(doughnutCtx, {
+                type: 'doughnut',
+                data: {
+                    labels: productLabels,
+                    datasets: [{
+                        data: productData,
+                        backgroundColor: palette.slice(0, productData.length),
+                        borderWidth: 2,
+                        borderColor: '#fff',
+                        hoverOffset: 6,
+                    }],
+                },
+                options: {
+                    responsive: true,
+                    maintainAspectRatio: false,
+                    cutout: '65%',
+                    plugins: {
+                        legend: { display: false },
+                        tooltip: {
+                            callbacks: {
+                                label: ctx => ` ${ctx.label}: ${ctx.parsed}% (${productRaw[ctx.dataIndex]} pcs)`,
+                            },
+                        },
+                    },
+                },
+            });
+        }
+    </script>
+
 </x-app-layout>

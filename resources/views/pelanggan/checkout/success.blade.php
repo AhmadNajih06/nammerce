@@ -16,7 +16,7 @@
                 </div>
                 <h3 class="text-lg font-bold text-green-800 mb-1">Pesanan Diterima!</h3>
                 <p class="text-sm text-green-700">
-                    Order <span class="font-semibold">#{{ $order->id }}</span> telah berhasil dibuat.
+                     <span class="font-semibold">Pesanan</span> telah berhasil dibuat.
                 </p>
             </div>
 

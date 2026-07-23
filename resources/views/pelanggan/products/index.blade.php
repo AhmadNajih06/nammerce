@@ -64,27 +64,35 @@
                                     {{ $product->name }}
                                 </a>
                                 <p class="mt-1 text-sm font-bold text-gray-900">{{ $product->formattedPrice() }}</p>
-                                <p class="text-xs mt-1 {{ $product->stock > 0 ? 'text-green-600' : 'text-red-500' }}">
-                                    {{ $product->stock > 0 ? 'Stok: ' . $product->stock : 'Habis' }}
-                                </p>
-                                {{-- Tombol keranjang --}}
-                                <div class="mt-3">
-                                    @if ($product->stock > 0)
-                                        <form action="{{ route('pelanggan.cart.add', $product) }}" method="POST">
-                                            @csrf
-                                            <input type="hidden" name="quantity" value="1">
-                                            <button type="submit"
-                                                    class="w-full px-3 py-1.5 bg-indigo-600 text-white text-xs font-medium rounded-md hover:bg-indigo-700 transition">
-                                                + Keranjang
+                                {{-- Stok & tombol: hanya tampil jika produk aktif --}}
+                                @if ($product->is_active)
+                                    <p class="text-xs mt-1 {{ $product->stock > 0 ? 'text-green-600' : 'text-red-500' }}">
+                                        {{ $product->stock > 0 ? 'Stok: ' . $product->stock : 'Habis' }}
+                                    </p>
+                                    <div class="mt-3">
+                                        @if ($product->stock > 0)
+                                            <form action="{{ route('pelanggan.cart.add', $product) }}" method="POST">
+                                                @csrf
+                                                <input type="hidden" name="quantity" value="1">
+                                                <button type="submit"
+                                                        class="w-full px-3 py-1.5 bg-indigo-600 text-white text-xs font-medium rounded-md hover:bg-indigo-700 transition">
+                                                    + Keranjang
+                                                </button>
+                                            </form>
+                                        @else
+                                            <button disabled
+                                                    class="w-full px-3 py-1.5 bg-gray-100 text-gray-400 text-xs font-medium rounded-md cursor-not-allowed">
+                                                Stok Habis
                                             </button>
-                                        </form>
-                                    @else
-                                        <button disabled
-                                                class="w-full px-3 py-1.5 bg-gray-100 text-gray-400 text-xs font-medium rounded-md cursor-not-allowed">
-                                            Stok Habis
-                                        </button>
-                                    @endif
-                                </div>
+                                        @endif
+                                    </div>
+                                @else
+                                    <div class="mt-3">
+                                        <span class="w-full inline-block text-center px-3 py-1.5 bg-gray-100 text-gray-400 text-xs font-medium rounded-md">
+                                            Tidak Tersedia
+                                        </span>
+                                    </div>
+                                @endif
                             </div>
                         </div>
                     @endforeach

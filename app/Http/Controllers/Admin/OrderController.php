@@ -15,7 +15,7 @@ class OrderController extends Controller
      */
     public function index(Request $request): View
     {
-        $query = Order::with('user')->latest();
+        $query = Order::with('user', 'items.product')->oldest();
 
         // Filter status
         if ($request->filled('status')) {
@@ -42,6 +42,11 @@ class OrderController extends Controller
      */
     public function updateStatus(Request $request, Order $order): RedirectResponse
     {
+        // Order yang sudah selesai tidak dapat diubah
+        if ($order->status === 'completed') {
+            return back()->with('error', 'Order yang sudah selesai tidak dapat diubah statusnya.');
+        }
+
         $request->validate([
             'status' => ['required', 'in:pending,processing,completed,cancelled'],
         ]);

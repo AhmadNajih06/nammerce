@@ -17,6 +17,10 @@ class Order extends Model
         'total_amount',
         'status',
         'order_date',
+        'shipping_name',
+        'shipping_address',
+        'shipping_phone',
+        'payment_method',
     ];
 
     protected function casts(): array
