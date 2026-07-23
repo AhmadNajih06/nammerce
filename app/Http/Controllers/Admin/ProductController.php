@@ -12,11 +12,18 @@ use Illuminate\View\View;
 
 class ProductController extends Controller
 {
-    public function index(): View
+    public function index(Request $request): View
     {
-        $products = Product::with('category')->oldest()->paginate(10);
+        $showTrashed = $request->boolean('trashed');
 
-        return view('admin.products.index', compact('products'));
+        $query = $showTrashed
+            ? Product::onlyTrashed()->with('category')->oldest()
+            : Product::with('category')->oldest();
+
+        $products     = $query->paginate(10)->withQueryString();
+        $trashedCount = Product::onlyTrashed()->count();
+
+        return view('admin.products.index', compact('products', 'trashedCount', 'showTrashed'));
     }
 
     public function create(): View
@@ -37,7 +44,8 @@ class ProductController extends Controller
             'image'        => ['nullable', 'image', 'mimes:jpg,jpeg,png,webp'],
         ]);
 
-        $data['slug'] = Str::slug($data['name']);
+        $data['slug']        = Str::slug($data['name']);
+        $data['is_featured'] = $request->boolean('is_featured');
 
         if ($request->hasFile('image')) {
             $data['image'] = $request->file('image')->store('products', 'public');
@@ -58,9 +66,8 @@ class ProductController extends Controller
 
     public function update(Request $request, Product $product): RedirectResponse
     {
-        // Jika POST payload melebihi post_max_size, PHP mengosongkan $_FILES & $_POST
         if ($request->server('CONTENT_LENGTH') > 0 && empty($_POST) && empty($_FILES)) {
-            return back()->withErrors(['image' => 'Ukuran file terlalu besar. Pastikan ukuran file tidak melebihi batas server.'])->withInput();
+            return back()->withErrors(['image' => 'Ukuran file terlalu besar.'])->withInput();
         }
 
         $data = $request->validate([
@@ -72,16 +79,15 @@ class ProductController extends Controller
             'image'        => ['nullable', 'image', 'mimes:jpg,jpeg,png,webp'],
         ]);
 
-        $data['slug'] = Str::slug($data['name']);
+        $data['slug']        = Str::slug($data['name']);
+        $data['is_featured'] = $request->boolean('is_featured');
 
         if ($request->hasFile('image')) {
-            // Hapus foto lama
             if ($product->image) {
                 \Storage::disk('public')->delete($product->image);
             }
             $data['image'] = $request->file('image')->store('products', 'public');
         } else {
-            // Jangan overwrite image dengan null jika tidak ada file baru
             unset($data['image']);
         }
 
@@ -91,16 +97,28 @@ class ProductController extends Controller
             ->with('success', 'Produk berhasil diperbarui.');
     }
 
+    /**
+     * Soft delete — produk ditandai dihapus tapi data order_items tetap aman.
+     * Foto TIDAK dihapus agar bisa dipulihkan kembali.
+     */
     public function destroy(Product $product): RedirectResponse
     {
-        if ($product->image) {
-            \Storage::disk('public')->delete($product->image);
-        }
-
         $product->delete();
 
         return redirect()->route('admin.products.index')
             ->with('success', 'Produk berhasil dihapus.');
+    }
+
+    /**
+     * Pulihkan produk yang di-soft delete.
+     */
+    public function restore(int $id): RedirectResponse
+    {
+        $product = Product::onlyTrashed()->findOrFail($id);
+        $product->restore();
+
+        return redirect()->route('admin.products.index')
+            ->with('success', 'Produk "' . $product->name . '" berhasil dipulihkan.');
     }
 
     /**

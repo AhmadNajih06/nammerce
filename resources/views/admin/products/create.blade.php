@@ -103,6 +103,17 @@
                         @enderror
                     </div>
 
+                    {{-- Produk Unggulan --}}
+                    <div class="flex items-center gap-3 pt-1">
+                        <input type="checkbox" id="is_featured" name="is_featured" value="1"
+                               {{ old('is_featured') ? 'checked' : '' }}
+                               class="w-4 h-4 rounded border-gray-300 text-indigo-600 focus:ring-indigo-500">
+                        <label for="is_featured" class="text-sm font-medium text-gray-700">
+                            Tandai sebagai <span class="text-yellow-500 font-semibold">⭐ Produk Unggulan</span>
+                            <span class="text-gray-400 font-normal text-xs">(tampil di halaman utama)</span>
+                        </label>
+                    </div>
+
                     <div class="flex items-center gap-3 pt-2">
                         <a href="{{ route('admin.products.index') }}"
                            class="px-5 py-2 text-gray-600 hover:text-gray-800">

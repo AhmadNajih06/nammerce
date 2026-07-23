@@ -3,7 +3,7 @@
         <div class="flex items-center gap-3">
             <a href="{{ route('pelanggan.orders.index') }}" class="text-gray-400 hover:text-gray-600">&larr;</a>
             <h2 class="font-semibold text-xl text-gray-800 leading-tight">
-                Detail Pesanan <span class="text-indigo-600">#{{ $order->id }}</span>
+                Detail Pesanan <span class="text-indigo-600"></span>
             </h2>
         </div>
     </x-slot>

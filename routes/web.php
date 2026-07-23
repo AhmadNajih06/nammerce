@@ -12,13 +12,27 @@ use App\Http\Controllers\ProfileController;
 use Illuminate\Support\Facades\Route;
 
 Route::get('/', function () {
-    $products = \App\Models\Product::with('category')
-        ->where('stock', '>', 0)
+    // Ambil 4 produk yang ditandai unggulan (is_featured), aktif, dan tidak dihapus
+    // Fallback: jika kurang dari 4, isi sisa dengan produk terlaris
+    $featured = \App\Models\Product::with('category')
+        ->where('is_active', true)
+        ->where('is_featured', true)
         ->latest()
-        ->limit(8)
+        ->limit(4)
         ->get();
 
-    return view('welcome', compact('products'));
+    if ($featured->count() < 4) {
+        $exclude = $featured->pluck('id')->toArray();
+        $fill = \App\Models\Product::with('category')
+            ->where('is_active', true)
+            ->whereNotIn('id', $exclude)
+            ->latest()
+            ->limit(4 - $featured->count())
+            ->get();
+        $featured = $featured->merge($fill);
+    }
+
+    return view('welcome', ['products' => $featured]);
 });
 
 // Redirect /dashboard ke route yang sesuai dengan role
@@ -44,6 +58,9 @@ Route::middleware(['auth', 'verified', 'role:admin'])
 
         Route::patch('products/{product}/toggle', [AdminProductController::class, 'toggle'])
             ->name('products.toggle');
+
+        Route::post('products/{id}/restore', [AdminProductController::class, 'restore'])
+            ->name('products.restore');
 
         // Orders
         Route::get('/orders', [OrderController::class, 'index'])->name('orders.index');

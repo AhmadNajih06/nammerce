@@ -103,7 +103,7 @@
             <div class="grid grid-cols-1 lg:grid-cols-2 gap-6">
 
                 {{-- Order terbaru --}}
-                <!-- <div class="bg-white shadow-sm sm:rounded-lg overflow-hidden">
+                <div class="bg-white shadow-sm sm:rounded-lg overflow-hidden">
                     <div class="px-6 py-4 border-b border-gray-100 flex justify-between items-center">
                         <h3 class="font-semibold text-gray-800">Order Terbaru</h3>
                         <a href="{{ route('admin.orders.index') }}" class="text-xs text-indigo-600 hover:text-indigo-800">Lihat semua &rarr;</a>
@@ -155,7 +155,7 @@
                             </tbody>
                         </table>
                     @endif
-                </div> -->
+                </div>
 
                 {{-- Produk terlaris --}}
                 <div class="bg-white shadow-sm sm:rounded-lg overflow-hidden">

@@ -28,7 +28,7 @@ class DashboardController extends Controller
             ->get();
 
         // ── Order terbaru 10 ─────────────────────────────────────────────────
-        $recentOrders = Order::with('user')->oldest()->limit(10)->get();
+        $recentOrders = Order::with('user')->oldest()->limit(5)->get();
 
         // ── Grafik pendapatan bulanan (12 bulan terakhir) ────────────────────
         $revenueChart = $this->getMonthlyRevenue();

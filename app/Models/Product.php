@@ -6,11 +6,12 @@ use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
 use Illuminate\Database\Eloquent\Relations\BelongsToMany;
+use Illuminate\Database\Eloquent\SoftDeletes;
 use Illuminate\Support\Str;
 
 class Product extends Model
 {
-    use HasFactory;
+    use HasFactory, SoftDeletes;
 
     protected $fillable = [
         'category_id',
@@ -20,15 +21,17 @@ class Product extends Model
         'price',
         'stock',
         'is_active',
+        'is_featured',
         'image',
     ];
 
     protected function casts(): array
     {
         return [
-            'price'     => 'integer',
-            'stock'     => 'integer',
-            'is_active' => 'boolean',
+            'price'       => 'integer',
+            'stock'       => 'integer',
+            'is_active'   => 'boolean',
+            'is_featured' => 'boolean',
         ];
     }
 

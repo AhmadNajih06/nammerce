@@ -18,6 +18,26 @@
                 </div>
             @endif
 
+            {{-- Tab: Aktif / Terhapus --}}
+            <div class="flex gap-2">
+                <a href="{{ route('admin.products.index') }}"
+                   class="px-4 py-1.5 text-sm rounded-md border transition
+                          {{ ! $showTrashed ? 'bg-indigo-600 text-white border-indigo-600' : 'bg-white text-gray-600 border-gray-300 hover:border-indigo-400' }}">
+                    Aktif
+                </a>
+                <a href="{{ route('admin.products.index', ['trashed' => 1]) }}"
+                   class="px-4 py-1.5 text-sm rounded-md border transition flex items-center gap-1.5
+                          {{ $showTrashed ? 'bg-red-600 text-white border-red-600' : 'bg-white text-gray-600 border-gray-300 hover:border-red-400' }}">
+                    Dihapus
+                    @if ($trashedCount > 0)
+                        <span class="inline-flex items-center justify-center w-4 h-4 text-xs font-bold rounded-full
+                                     {{ $showTrashed ? 'bg-white text-red-600' : 'bg-red-500 text-white' }}">
+                            {{ $trashedCount }}
+                        </span>
+                    @endif
+                </a>
+            </div>
+
             <div class="bg-white shadow-sm sm:rounded-lg overflow-hidden">
                 <table class="min-w-full divide-y divide-gray-200 text-sm">
                     <thead class="bg-gray-50">
@@ -34,7 +54,7 @@
                     </thead>
                     <tbody class="bg-white divide-y divide-gray-100">
                         @forelse ($products as $product)
-                            <tr class="hover:bg-gray-50 {{ $product->is_active ? '' : 'opacity-60' }}">
+                            <tr class="hover:bg-gray-50 {{ ! $product->is_active || $showTrashed ? 'opacity-60' : '' }}">
                                 <td class="px-4 py-3 text-gray-400">
                                     {{ $loop->iteration + ($products->firstItem() - 1) }}
                                 </td>
@@ -46,6 +66,11 @@
                                 <td class="px-4 py-3">
                                     <div class="font-medium text-gray-900">{{ $product->name }}</div>
                                     <div class="text-xs text-gray-400 font-mono">{{ $product->slug }}</div>
+                                    @if ($showTrashed)
+                                        <div class="text-xs text-red-500 mt-0.5">
+                                            Dihapus {{ $product->deleted_at->diffForHumans() }}
+                                        </div>
+                                    @endif
                                 </td>
                                 <td class="px-4 py-3 text-gray-500">
                                     {{ $product->category?->name ?? '—' }}
@@ -54,7 +79,7 @@
                                     {{ $product->formattedPrice() }}
                                 </td>
                                 <td class="px-4 py-3">
-                                    @if ($product->is_active)
+                                    @if (! $showTrashed && $product->is_active)
                                         <span class="{{ $product->stock > 0 ? 'text-green-700 bg-green-100' : 'text-red-700 bg-red-100' }} px-2 py-0.5 rounded-full text-xs font-medium">
                                             {{ $product->stock }}
                                         </span>
@@ -63,43 +88,64 @@
                                     @endif
                                 </td>
 
-                                {{-- Switch ON/OFF --}}
+                                {{-- Switch ON/OFF (hanya untuk produk aktif, bukan yang dihapus) --}}
                                 <td class="px-4 py-3 text-center">
-                                    <form action="{{ route('admin.products.toggle', $product) }}" method="POST">
-                                        @csrf
-                                        @method('PATCH')
-                                        <button type="submit"
-                                                title="{{ $product->is_active ? 'Nonaktifkan' : 'Aktifkan' }}"
-                                                class="relative inline-flex h-6 w-11 items-center rounded-full transition-colors focus:outline-none
-                                                       {{ $product->is_active ? 'bg-indigo-600' : 'bg-gray-300' }}">
-                                            <span class="inline-block h-4 w-4 transform rounded-full bg-white shadow transition-transform
-                                                         {{ $product->is_active ? 'translate-x-6' : 'translate-x-1' }}">
-                                            </span>
-                                        </button>
-                                    </form>
+                                    @if (! $showTrashed)
+                                        <form action="{{ route('admin.products.toggle', $product) }}" method="POST">
+                                            @csrf
+                                            @method('PATCH')
+                                            <button type="submit"
+                                                    title="{{ $product->is_active ? 'Nonaktifkan' : 'Aktifkan' }}"
+                                                    class="relative inline-flex h-6 w-11 items-center rounded-full transition-colors focus:outline-none
+                                                           {{ $product->is_active ? 'bg-indigo-600' : 'bg-gray-300' }}">
+                                                <span class="inline-block h-4 w-4 transform rounded-full bg-white shadow transition-transform
+                                                             {{ $product->is_active ? 'translate-x-6' : 'translate-x-1' }}">
+                                                </span>
+                                            </button>
+                                        </form>
+                                    @else
+                                        <span class="text-gray-300 text-xs">—</span>
+                                    @endif
                                 </td>
 
+                                {{-- Aksi --}}
                                 <td class="px-4 py-3 text-right space-x-2">
-                                    <a href="{{ route('admin.products.edit', $product) }}"
-                                       class="text-indigo-600 hover:text-indigo-800 font-medium">Edit</a>
+                                    @if ($showTrashed)
+                                        {{-- Pulihkan --}}
+                                        <form action="{{ route('admin.products.restore', $product->id) }}"
+                                              method="POST" class="inline">
+                                            @csrf
+                                            <button type="submit"
+                                                    class="text-green-600 hover:text-green-800 font-medium">
+                                                Pulihkan
+                                            </button>
+                                        </form>
+                                    @else
+                                        <a href="{{ route('admin.products.edit', $product) }}"
+                                           class="text-indigo-600 hover:text-indigo-800 font-medium">Edit</a>
 
-                                    {{-- tombol hapus --}}
-                                    <!-- <form action="{{ route('admin.products.destroy', $product) }}"
-                                          method="POST" class="inline"
-                                          onsubmit="return confirm('Hapus produk \'{{ addslashes($product->name) }}\'?')">
-                                        @csrf
-                                        @method('DELETE')
-                                        <button type="submit" class="text-red-600 hover:text-red-800 font-medium">
-                                            Hapus
-                                        </button>
-                                    </form> -->
+                                        <form action="{{ route('admin.products.destroy', $product) }}"
+                                              method="POST" class="inline"
+                                              onsubmit="return confirm('Hapus produk \'{{ addslashes($product->name) }}\'?\n\nProduk tidak akan benar-benar dihapus dari database dan bisa dipulihkan kembali.')">
+                                            @csrf
+                                            @method('DELETE')
+                                            <button type="submit"
+                                                    class="text-red-600 hover:text-red-800 font-medium">
+                                                Hapus
+                                            </button>
+                                        </form>
+                                    @endif
                                 </td>
                             </tr>
                         @empty
                             <tr>
                                 <td colspan="8" class="px-6 py-8 text-center text-gray-400">
-                                    Belum ada produk.
-                                    <a href="{{ route('admin.products.create') }}" class="text-indigo-600 hover:underline">Tambah sekarang</a>.
+                                    @if ($showTrashed)
+                                        Tidak ada produk yang dihapus.
+                                    @else
+                                        Belum ada produk.
+                                        <a href="{{ route('admin.products.create') }}" class="text-indigo-600 hover:underline">Tambah sekarang</a>.
+                                    @endif
                                 </td>
                             </tr>
                         @endforelse
